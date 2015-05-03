@@ -13,7 +13,7 @@ client = TwilioRestClient(account_sid, auth_token)
 
 def message(number):
     message = client.messages.create(to="+1"+str(number), from_="+16783048629",
-                                     body="You got a match!!!")
+                                     body="You got a new match!!!")
 
 @app.route('/message/<labelname>')
 def show_category(labelname):
