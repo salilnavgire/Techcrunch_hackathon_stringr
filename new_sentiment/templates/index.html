@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>New_Sentiment</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+        <style type="text/css">
+            .row {
+                margin-bottom: 15px;
+            }
+        </style>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+        <script type="text/javascript">
+            new (function(window, document, $)
+            {
+                var self = this;
+
+                $(document).ready(function()
+                {
+                    $('button').click(function()
+                    {
+                        var n = $(this).prop('name');
+
+                        $.post('/' + n + '/', {'data': $('[name="data"]').val()}, function(response)
+                        {
+                            var r = $('.results');
+                            r.empty();
+                            var html = '<h3>Sentiment Score:</h3>';
+
+                            if (n == 'category')
+                            {
+                                html += '<p class="lead">' + response + '</p>';
+                            }
+                            else
+                            {
+                                var score = parseFloat(response);
+
+                                html += ' <span class="lead">' + score.toFixed(3) + '/5.000</span></p>';
+                            }
+
+                            r.html(html);
+                        });
+                    });
+                });
+            })(window, document, jQuery);
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <h1>New Sentiment API Test</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <textarea class="form-control" name="data" rows="10" cols="80"></textarea>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12 text-center">
+                    <button class="btn btn-default" name="sentiment">Sentiment</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="results"></div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
