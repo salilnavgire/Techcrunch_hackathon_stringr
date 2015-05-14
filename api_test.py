@@ -1,10 +1,8 @@
 from elasticsearch import Elasticsearch
-import unicodedata
-from flask import request
 from flask import Flask
 import os
-app = Flask(__name__)
 import json
+app = Flask(__name__)
 
 es = Elasticsearch()
 print es
@@ -12,26 +10,27 @@ print es
 
 def search(usr_id):
     body2 = {"query":
-         {'match':
-          {"id":usr_id}
-         }
-        }
+             {'match':
+              {"id": usr_id}
+              }
+             }
+
     body1 = {"query":
-         {'match':
-          {"id":'1807424'}
-         }
-        }
+             {'match':
+              {"id": '1807424'}
+              }
+             }
 
     body3 = {"query":
-         {"match_all":
-            {
-            }
-        }
-         }
+             {"match_all":
+              {
+              }
+              }
+             }
 
     print body1
     res = es.search(index='test9', doc_type='tweet', body=body2, size=100000)
-    #return json.dumps(res['hits']['hits'])
+    # return json.dumps(res['hits']['hits'])
     print res
     return json.dumps(res['hits']['hits'])
 
