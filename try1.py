@@ -1,4 +1,3 @@
-import urllib2
 import requests
 import json
 
@@ -24,16 +23,16 @@ def search_all_userids():
         list3.append(search_userid(res))
     return list3
 
-'''
+
 def backup_ids():
-'''
+    data = return_all_ids()
+    ids = []
+    for res in data:
+        ids.append(res['_source']['id'])
+    with open('userids.txt', 'w') as outfile:
+        json.dump(ids, outfile)
 
 
 if __name__ == '__main__':
     # print len(search_all_userids())
-    data = return_all_ids()
-    print data
-    '''
-    for res in data:
-        print res['_source']
-    '''
+    backup_ids()
