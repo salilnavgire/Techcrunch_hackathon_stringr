@@ -1,38 +1,39 @@
 import urllib2
 import requests
 import json
-num_id = '2422631'
-num_list = [1807424, 32215203, 9679046, 7559526, 31162695, 44967370, 2422631, 32191179, 76154343, 922374, 3966515, 59606580, 15910174, 526486, 4263931, 9763705, 1072199, 4629851, 4003901, 942279]
 
-if __name__ == '__main__':
-    #r = requests.post('http://0.0.0.0:8998/search/', {'id': num_id})
-    #print r.text
-
-    '''
-    r = requests.post('http://6f91eb69.ngrok.com/search/', {'id': num_id})
-    print json.loads(r.text)
-    #print r
-    '''
+num_list = [150253403, 37468197, 75958638, 980616, 144982481, 12092239, 156143304, 41358123, 36633920, 18170900,
+            20146318, 99730465, 5170489, 19338959, 12399304, 31900943, 471457, 4456085, 44068194,
+            41753883, 117083897, 21385553, 36793675, 155502458, 84469028, 49476248, 46982479, 2399217,
+            73041712, 124844721, 121641150]
 
 
-    #print json.dumps(r.text, separators=(',',':'), indent=4)
-    '''
-    for res in json.loads(r.text):
-        print json.dumps(res, separators=(',',':'), indent=4)
-    '''
+def return_all_ids():
+    r = requests.get('http://localhost:8998/all')
+    return json.loads(r.text)
 
-    '''
-    r = requests.get('http://6f91eb69.ngrok.com/search/'+num_id)
-    print r.text
-    '''
 
+def search_userid(res):
+    r = requests.get('http://localhost:8998/search/'+str(res))
+    return json.loads(r.text)
+
+
+def search_all_userids():
     list3 = []
     for res in num_list:
-        print res
-        r = requests.get('http://6f91eb69.ngrok.com/search/'+str(res))
-        list3.append(json.loads(r.text))
+        list3.append(search_userid(res))
+    return list3
+
+'''
+def backup_ids():
+'''
 
 
-    print list3
-    with open('data1.txt', 'w') as outfile:
-        json.dump(list3, outfile)
+if __name__ == '__main__':
+    # print len(search_all_userids())
+    data = return_all_ids()
+    print data
+    '''
+    for res in data:
+        print res['_source']
+    '''
