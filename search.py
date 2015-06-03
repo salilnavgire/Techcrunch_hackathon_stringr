@@ -1,13 +1,12 @@
 from __future__ import division
 import requests
-import json
 import soundcloud
 import operator
-from elasticsearch import Elasticsearch
-es = Elasticsearch()
-import numpy as np
 from collections import Counter
 from collections import defaultdict
+import numpy as np
+from elasticsearch import Elasticsearch
+es = Elasticsearch()
 
 
 '''
@@ -17,11 +16,17 @@ client_id = '20302b73d7cf5fc7251ccb197953dc02'
 
 
 def client_login(client_id):
+    '''
+    Soundcloud clint login
+    '''
     client = soundcloud.Client(client_id=client_id)
     return client
 
 
 def search_tracks(genre):
+    '''
+    Search top tracks in a genre
+    '''
     tracks = client.get('/tracks')
     return tracks
 
@@ -38,6 +43,9 @@ def get_uri(tracks):
 
 
 def get_user_info(uri):
+    '''
+    Get user information based on track url
+    '''
     user_info = []
     for res in Counter(uri).keys():
         user_info.append(client.get('/resolve', url=res))
@@ -53,11 +61,18 @@ def get_user_url(user_info):
 
 
 def sentiment(data):
+    '''
+    Get sentiment score from the sentiment api
+    '''
     r = requests.post('http://localhost:9997/sentiment/', {'data': data})
     return r.text
 
 
 def get_sentiment(ids):
+    '''
+    Get average Sentiment score for a artist based on aggregate comments on
+    each of their tracks
+    '''
     sen = []
     track_info = client.get('/tracks', user_id=ids)
     some_dict = defaultdict()
@@ -73,7 +88,8 @@ def get_sentiment(ids):
             something = float(sentiment(attrsssss['body']))
             sen.append(something)
             track_sen.append(something)
-        some_dict[attrs['obj']['permalink_url']] = (sum(track_sen)/(np.maximum(len(sen), 1.0)))*(commen)
+        some_dict[attrs['obj']['permalink_url']] = (sum(track_sen) /
+                                                    (np.maximum(len(sen), 1.0)))*(commen)
     # print sum(sen)/(np.maximum(len(sen), 1.0))
     sorted_x = sorted(some_dict.items(), key=operator.itemgetter(1))[::-1]
     # print sorted_x[:3]
@@ -81,6 +97,11 @@ def get_sentiment(ids):
 
 
 def index_users(user_info):
+    '''
+    Calculate score for each artist based on ensemble of average Sentiment score,
+    playlist_count and followers_count.
+    Each artist data is stored in Elasticsearch index
+    '''
     count = 0
     for res in user_info:
         print res
@@ -90,9 +111,10 @@ def index_users(user_info):
         avg_sen, sorted_x = get_sentiment(attrs['id'])
 
         base = attrs
-        print ((((avg_sen*0.9)/5)+((np.maximum(base['playlist_count'], 1)/20)*0.12)+((base['followers_count']/2000000)*0.11))*100)
+        print ((((avg_sen*0.9)/5)+((np.maximum(base['playlist_count'], 1)/20)*0.12)
+               + ((base['followers_count']/2000000)*0.11))*100)
         try:
-             body_query = {
+            body_query = {
                 'id': attrs['id'],
                 'username': attrs['username'],
                 'full_name': attrs['full_name'],
@@ -103,8 +125,10 @@ def index_users(user_info):
                 'followers_count': attrs['followers_count'],
                 'public_favorite_count': attrs['public_favorites_count'],
                 'avg_sentiment': avg_sen,
-                'score' : ((((avg_sen*0.9)/5)+((np.maximum(base['playlist_count'], 1)/20)*0.12)+((base['followers_count']/2000000)*0.11))*100),
-                'links' : sorted_x
+                'score': ((((avg_sen*0.9)/5)+((np.maximum(base['playlist_count'],
+                           1)/20)*0.12)
+                           + ((base['followers_count']/2000000)*0.11))*100),
+                'links': sorted_x
                     }
         except KeyError:
             pass
